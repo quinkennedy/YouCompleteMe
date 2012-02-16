@@ -1,0 +1,10 @@
+heart_a
+heart_a_0_original
+heart_a_1_original
+heart_a_2_original
+heart_a_3_original
+heart_b
+heart_c
+text_0
+text_1
+text_2

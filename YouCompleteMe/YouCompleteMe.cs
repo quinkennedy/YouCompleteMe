@@ -15,7 +15,7 @@ namespace YouCompleteMe
 		//2 3
 		Cube[] cubes = new Cube[4];
 		int textDelay = 6000;//6 seconds
-		int textTime = -1;
+		System.Diagnostics.Stopwatch textStopwatch = new System.Diagnostics.Stopwatch();
 		int numCubesArranged = 0;
 		string heartChar = "a";
 
@@ -34,12 +34,22 @@ namespace YouCompleteMe
 
 		override public void Tick ()
 		{
-			if(numCubesArranged == 3 && textTime > 0 && textTime <= System.DateTime.Now.Millisecond){
+			if(numCubesArranged == 3 && textStopwatch.IsRunning && textStopwatch.ElapsedMilliseconds > textDelay){
 				displayText();
+				textStopwatch.Reset ();
 			}
 		}
 		
 		void displayText(){
+			int textIndex = 0;
+			foreach(Cube c in cubes){
+				if(c != null){
+					c.FillScreen (new Color(100, 100, 255));
+					c.Image ("text_"+textIndex++, 0, 0, 0, 0, Cube.SCREEN_WIDTH, Cube.SCREEN_HEIGHT, 1, 0);
+					c.Paint ();
+				}
+			}
+			Log.Debug ("printed text");
 		}
 
 		// development mode only
@@ -127,11 +137,13 @@ namespace YouCompleteMe
 			             	? FindHorizontal (active[2]) 
 			             	: null));
 			bool found;
+			numCubesArranged = 0;
 			foreach(Cube sc in CubeSet){
 				found = false;
 				foreach(Cube ac in active){
 					if (sc == ac){
 						found = true;
+						numCubesArranged++;
 						break;
 					}
 				}
@@ -139,7 +151,13 @@ namespace YouCompleteMe
 					RemoveCubeFromArray (sc);
 				}
 			}
-			textTime = System.DateTime.Now.Millisecond + textDelay;
+			if (numCubesArranged == 3){
+				textStopwatch.Reset ();
+				textStopwatch.Start ();
+			} else {
+				textStopwatch.Stop ();
+			}
+			PrintCubeArray();
 		}
 
 		void HandleNeighborRemoveEvent (Cube c, Cube.Side side, Cube neighbor, Cube.Side neighborSide)
@@ -152,14 +170,23 @@ namespace YouCompleteMe
 			updateCubes (c,neighbor);
 		}
 		
+		void PrintCubeArray(){
+			string sc = string.Empty;
+			foreach(Cube c in cubes){
+				sc += c == null ? "null;" : c.UniqueId;
+			}
+			Log.Debug (sc + " : " + numCubesArranged);
+		}
+		
 		void AddCubeToArray(Cube c, int index){
 			if (index < 0 || index >= cubes.Length)
 				return;
 			RemoveCubeFromArray (c);
 			if (cubes[index] != null)
 				RemoveCubeFromArray (cubes[index]);
+			c.FillScreen(Color.Black);
 			c.Image("heart_"+heartChar+"_"+index, 0, 0, 0, 0, 128, 128, 1, 0);
-			c.Paint ();
+			c.Paint();
 			cubes[index] = c;
 		}
 		
@@ -177,7 +204,7 @@ namespace YouCompleteMe
 			if (index >= 0){
 				cubes[index] = null;
 				c.FillScreen(Color.White);
-				c.Paint ();
+				c.Paint();
 				return true;
 			}
 			return false;
