@@ -26,6 +26,8 @@ namespace YouCompleteMe
 			foreach (Cube c in CubeSet) {
 				c.NeighborAddEvent += HandleNeighborAddEvent;
 				c.NeighborRemoveEvent += HandleNeighborRemoveEvent;
+				c.FillScreen (Color.White);
+				c.Paint ();
 				//if (!c.Neighbors.IsEmpty){
 				//	if (c.Neighbors.Right != null)
 				//		HandleNeighborAddEvent(c, Cube.Side.RIGHT, c.Neighbors.Right, 
@@ -85,12 +87,14 @@ namespace YouCompleteMe
 		Cube FindVertical(Cube c){
 			int i = IsCubeInArray (c);
 			if (i >= 2){//I am on the bottom
-				if (c.Neighbors.Top != null && c.Neighbors.Top.Neighbors.Bottom == c){
+				if (c.Neighbors.Top != null){// && c.Neighbors.Top.Neighbors.Bottom == c){
+					c.Neighbors.Top.OrientTo (c);
 					AddCubeToArray (c.Neighbors.Top, i & 1);
 					return c.Neighbors.Top;
 				}
 			} else {//I am on the top
-				if (c.Neighbors.Bottom != null && c.Neighbors.Bottom.Neighbors.Top == c){
+				if (c.Neighbors.Bottom != null){// && c.Neighbors.Bottom.Neighbors.Top == c){
+					c.Neighbors.Bottom.OrientTo (c);
 					AddCubeToArray (c.Neighbors.Bottom, i | 2);
 					return c.Neighbors.Bottom;
 				}
@@ -101,12 +105,14 @@ namespace YouCompleteMe
 		Cube FindHorizontal(Cube c){
 			int i = IsCubeInArray (c);
 			if ((i & 1) == 0){//I am on the left
-				if (c.Neighbors.Right != null && c.Neighbors.Right.Neighbors.Left == c){
+				if (c.Neighbors.Right != null){// && c.Neighbors.Right.Neighbors.Left == c){
+					c.Neighbors.Right.OrientTo (c);
 					AddCubeToArray (c.Neighbors.Right, i + 1);
 					return c.Neighbors.Right;
 				}
 			} else {//I am on the right
-				if (c.Neighbors.Left != null && c.Neighbors.Left.Neighbors.Right == c){
+				if (c.Neighbors.Left != null){// && c.Neighbors.Left.Neighbors.Right == c){
+					c.Neighbors.Left.OrientTo (c);
 					AddCubeToArray (c.Neighbors.Left, i - 1);
 					return c.Neighbors.Left;
 				}
